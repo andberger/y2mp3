@@ -1,7 +1,7 @@
+![logo](y2mp3_logo.png?raw=true "y2mp3")
+
 # y2mp3 - Youtube-to-mp3 CLI
 A simple CLI tool for downloading youtube videos as `.mp3` files.
-
-![logo](y2mp3_logo.png?raw=true "y2mp3")
 
 ## Install
 To install y2mp3 with pip, run: `pip install y2mp3`
