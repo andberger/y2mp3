@@ -1,5 +1,6 @@
 ![logo](y2mp3_logo.png?raw=true "y2mp3")
 
+# y2mp3
 A simple CLI tool for downloading youtube videos as `.mp3` files.
 
 ## Install
