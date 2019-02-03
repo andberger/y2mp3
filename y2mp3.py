@@ -11,13 +11,8 @@ def build_url(video_id):
     return youtube_watch_url + video_id
 
 def download_youtube_video_as_mp3(video_id):
-
-    # build the url
-    url = build_url(video_id)
-    print(url)
-
     # get video info
-    get_video_info(url)
+    get_video_info(video_id)
 
 urls = {
     'gdata': "https://www.googleapis.com/youtube/v3/",
@@ -33,21 +28,17 @@ urls = {
     'embed': "https://youtube.com/embed/%s"
     }
 
-def get_video_info(video_id, newurl=None):
+def get_video_info(video_id):
     """ Return info for video_id.  Returns dict. """
     embed_webpage = fetch_decode(urls['embed'])
     sts = re.search(r'sts"\s*:\s*(\d+)', embed_webpage).group(1)
 
-    print(embed_webpage)
-    print(sts)
-
+    import pdb; pdb.set_trace()
     url = urls['vidinfo'] % (video_id, video_id, sts)
-    url = newurl if newurl else url
-    print(url)
 
-    info = fetch_decode(url)  # bytes
-    info = parseqs(info)  # unicode dict
-    print(info)
+    info_bytes = fetch_decode(url)  # bytes
+    info_dict = parseqs(info_bytes)  # unicode dict
+    print(info_dict)
 
     if info['status'][0] == "fail":
         reason = info['reason'][0] or "Bad video argument"
@@ -75,7 +66,7 @@ def fetch_decode(url, encoding=None):
         else:
             raise
 
-    import pdb; pdb.set_trace()
+    print("Url: {0}".format(url))
     ct = req.headers['content-type']
 
     if encoding:
