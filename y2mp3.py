@@ -33,17 +33,17 @@ def get_video_info(video_id):
     embed_webpage = fetch_decode(urls['embed'])
     sts = re.search(r'sts"\s*:\s*(\d+)', embed_webpage).group(1)
 
-    import pdb; pdb.set_trace()
     url = urls['vidinfo'] % (video_id, video_id, sts)
 
     info_bytes = fetch_decode(url)  # bytes
     info_dict = parseqs(info_bytes)  # unicode dict
-    print(info_dict)
 
-    if info['status'][0] == "fail":
-        reason = info['reason'][0] or "Bad video argument"
+    import pdb; pdb.set_trace()
 
-    return info
+    if info_dict['status'][0] == "fail":
+        reason = info_dict['reason'][0] or "Bad video argument"
+
+    return info_dict
 
 def parseqs(data):
     """ parse_qs, return unicode. """
