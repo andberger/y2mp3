@@ -1,18 +1,24 @@
 import argparse
 import requests
 import re
-from urllib.request import build_opener
+from urllib.request import build_opener, urlopen
 from urllib.error import HTTPError
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, parse_qsl, unquote
 
-
-def build_url(video_id):
-    youtube_watch_url = 'https://www.youtube.com/watch?v='
-    return youtube_watch_url + video_id
 
 def download_youtube_video_as_mp3(video_id):
     # get video info
-    get_video_info(video_id)
+    info_dict = get_video_info(video_id)
+
+    # extract stream map
+    stream_maps = info_dict['url_encoded_fmt_stream_map']
+
+    import pdb; pdb.set_trace()
+
+    # descramble stream data
+    for fmt in stream_maps:
+        apply_descrambler(info_dict, fmt)
+
 
 urls = {
     'gdata': "https://www.googleapis.com/youtube/v3/",
@@ -28,6 +34,15 @@ urls = {
     'embed': "https://youtube.com/embed/%s"
     }
 
+def apply_descrambler(stream_data, key):
+    stream_data[key] = [
+        {k: unquote(v) for k, v in parse_qsl(i)}
+        for i in stream_data[key].split(',')
+    ]
+
+def apply_mixin(dct, key, func, *args, **kwargs):
+    dct[key] = func(dct[key], *args, **kwargs)
+
 def get_video_info(video_id):
     """ Return info for video_id.  Returns dict. """
     embed_webpage = fetch_decode(urls['embed'])
@@ -35,25 +50,11 @@ def get_video_info(video_id):
 
     url = urls['vidinfo'] % (video_id, video_id, sts)
 
-    info_bytes = fetch_decode(url)  # bytes
-    info_dict = parseqs(info_bytes)  # unicode dict
-
     import pdb; pdb.set_trace()
-
-    if info_dict['status'][0] == "fail":
-        reason = info_dict['reason'][0] or "Bad video argument"
+    video_info = urlopen(url).read().decode('utf-8')
+    info_dict = {k: v for k, v in parse_qsl(video_info)}
 
     return info_dict
-
-def parseqs(data):
-    """ parse_qs, return unicode. """
-    if type(data) == str:
-        return parse_qs(data)
-    else:
-        data = data.decode("utf8")
-        data = parse_qs(data)
-
-    return data
 
 def fetch_decode(url, encoding=None):
     """ Fetch url and decode. """
@@ -66,7 +67,6 @@ def fetch_decode(url, encoding=None):
         else:
             raise
 
-    print("Url: {0}".format(url))
     ct = req.headers['content-type']
 
     if encoding:
